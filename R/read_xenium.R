@@ -39,7 +39,6 @@ readXenium <- function(dir_name){ # Note: this code for this function is based o
   # add cell info
   colData(sce) <- cbind(colData(sce), cell_info)
 
-
   # make spatial objects
   spe <- toSpatialExperiment(sce, spatialCoordsNames = c("x_centroid", "y_centroid"))
   sfe <- toSpatialFeatureExperiment(spe)
@@ -47,36 +46,6 @@ readXenium <- function(dir_name){ # Note: this code for this function is based o
   # add segmented cells/nuc to spatial object
   cellSeg(sfe, withDimnames = FALSE) <- cells_sf
   nucSeg(sfe, withDimnames = FALSE) <- nuc_sf
-
-  # Add some QC Metrics
-  colData(sfe)$nCounts <- Matrix::colSums(counts(sfe))
-  colData(sfe)$nGenes <- Matrix::colSums(counts(sfe) > 0)
-
-  is_blank <- stringr::str_detect(rownames(sfe), "^BLANK_")
-  is_neg <- stringr::str_detect(rownames(sfe), "^NegControlProbe")
-  is_neg2 <- stringr::str_detect(rownames(sfe), "^NegControlCodeword")
-  is_anti <- stringr::str_detect(rownames(sfe), "^antisense")
-  is_depr <- stringr::str_detect(rownames(sfe), "^DeprecatedCodeword")
-  is_unassigned <- stringr::str_detect(rownames(sfe), "^Unassigned")
-
-  is_any_neg <- is_blank | is_neg | is_neg2 | is_anti | is_depr | is_unassigned
-  rowData(sfe)$is_neg <- is_any_neg
-
-  n_panel <- nrow(sfe) - sum(is_any_neg)
-
-  # normalize counts after QC
-  colData(sfe)$nCounts_normed <- sfe$nCounts/n_panel
-  colData(sfe)$nGenes_normed <- sfe$nGenes/n_panel
-  colData(sfe)$prop_nuc <- sfe$nucleus_area / sfe$cell_area
-
-  # add QC columns
-  sfe <- scuttle::addPerCellQCMetrics(sfe, subsets = list(blank = is_blank,
-                                                 negProbe = is_neg,
-                                                 negCodeword = is_neg2,
-                                                 anti = is_anti,
-                                                 depr = is_depr,
-                                                 unassigned = is_unassigned,
-                                                 any_neg = is_any_neg))
 
   # Add cell ids and make gene names unique
   colnames(sfe) <- seq_len(ncol(sfe))
