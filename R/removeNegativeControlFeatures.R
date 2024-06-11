@@ -5,5 +5,5 @@
 #' @return x, but only containing gene features
 #' @export
 removeNegativeControlFeatures <- function(x){
-  x <- x[which(rowData(sfe)$Type=="Gene Expression"), ]
+  x <- x[which(rowData(x)$Type=="Gene Expression"), ]
 }
