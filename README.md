@@ -21,6 +21,6 @@ An example of reading in data:
 
 ``` r
 library(xeniumUtils)
-sfe <- read_xenium("Xenium_V1_hPancreas_Cancer_Add_on_FFPE_outs")
+sfe <- readXenium("Xenium_V1_hPancreas_Cancer_Add_on_FFPE_outs")
 ```
 
